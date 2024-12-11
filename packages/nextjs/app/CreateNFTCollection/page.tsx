@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
 import { useWriteContract, useAccount } from "wagmi";
+import { useRouter } from "next/navigation"; // 引入 useRouter
 
 const CreateNFTCollection = () => {
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -15,6 +16,7 @@ const CreateNFTCollection = () => {
     const contractsData = useAllContracts();
     const nftFactoryContract = contractsData["NFTCollectionFactory"];
     const { writeContract } = useWriteContract();
+    const router = useRouter();
 
     const handleImageUpload = async () => {
         if (!imageFile) {
@@ -95,7 +97,8 @@ const CreateNFTCollection = () => {
             });
             console.log("Transaction sent:", result);
 
-            alert("NFT created successfully!");
+            alert("Send request to your Wallet");
+            router.push("/ViewNFTs"); // 跳转至 view 界面
         } catch (error) {
             console.error("Error creating NFT:", error);
             alert("Error creating NFT. Please try again.");

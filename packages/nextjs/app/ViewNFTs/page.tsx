@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
 import { useAccount, useWriteContract } from "wagmi";
 import { createPublicClient, http } from "viem";
@@ -11,8 +11,8 @@ const ViewNFTs = () => {
         { collection: string; tokenId: string; tokenURI: string; image?: string; name?: string; description?: string; isListed?: boolean }[]
     >([]);
     const [selectedNFT, setSelectedNFT] = useState<null | { collection: string; tokenId: string }>(null);
-    const [price, setPrice] = useState<string>(""); // 上架价格
-    const [duration, setDuration] = useState<string>(""); // 上架时间
+    const [price, setPrice] = useState<string>(""); // Listing price
+    const [duration, setDuration] = useState<string>(""); // Listing duration
     const [isLoading, setIsLoading] = useState(false);
     const { address: walletAddress } = useAccount();
     const contractsData = useAllContracts();
@@ -23,6 +23,7 @@ const ViewNFTs = () => {
         transport: http("https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"),
     });
 
+    // Fetch NFTs owned by the user
     const fetchNFTs = async () => {
         if (!walletAddress || !contractsData["NFTCollectionFactory"]) return;
 
@@ -83,7 +84,6 @@ const ViewNFTs = () => {
                             functionName: "isNFTListed",
                         });
 
-                        // 解码 TokenURI
                         const response = await fetch((tokenURI as string).replace("ipfs://", "https://ipfs.io/ipfs/"));
                         const metadata = await response.json();
 
@@ -136,6 +136,8 @@ const ViewNFTs = () => {
                 args: [BigInt(price) * BigInt(1e18), BigInt(duration)],
             });
             alert("NFT listed successfully!");
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            fetchNFTs(); // Refresh after listing
         } catch (error) {
             console.error("Error listing NFT:", error);
             alert("Error listing NFT. Please try again.");
@@ -166,6 +168,8 @@ const ViewNFTs = () => {
                 functionName: "endAuction",
             });
             alert("Auction ended successfully!");
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            fetchNFTs(); // Refresh after ending auction
         } catch (error) {
             console.error("Error ending auction:", error);
             alert("Error ending auction. Please try again.");
@@ -173,6 +177,10 @@ const ViewNFTs = () => {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchNFTs();
+    }, []);
 
     return (
         <div className="p-4">
@@ -183,7 +191,7 @@ const ViewNFTs = () => {
                     onClick={fetchNFTs}
                     disabled={isLoading}
                 >
-                    {isLoading ? "Loading..." : "Fetch My NFTs"}
+                    {isLoading ? "Loading..." : "Refresh"}
                 </button>
             </div>
             {nfts.length === 0 ? (

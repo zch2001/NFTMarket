@@ -16,12 +16,12 @@ const Market = () => {
             image?: string;
             name?: string;
             description?: string;
-            price?: number;
-            highestBid?: number;
+            price?: number; // Current market price
+            endTime?: number; // Auction end time (timestamp)
         }[]
     >([]);
-    const [selectedNFT, setSelectedNFT] = useState<null | { collection: string; tokenId: string }>(null);
-    const [bidAmount, setBidAmount] = useState<string>(""); // User's bid amount
+    const [selectedNFT, setSelectedNFT] = useState<null | { collection: string; tokenId: string; price: number }>(null);
+    const [bidAmount, setBidAmount] = useState<string>(""); // User bid amount
     const [isLoading, setIsLoading] = useState(false);
     const contractsData = useAllContracts();
     const { writeContract } = useWriteContract();
@@ -32,7 +32,6 @@ const Market = () => {
         transport: http("https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"),
     });
 
-    // Fetch all NFT collections listed on the market
     const fetchCollections = async () => {
         const nftFactoryContract = contractsData["NFTCollectionFactory"];
         if (!nftFactoryContract) return;
@@ -52,7 +51,6 @@ const Market = () => {
         }
     };
 
-    // Fetch all NFTs listed in the market
     const fetchMarketNFTs = async () => {
         if (collections.length === 0) return;
         setIsLoading(true);
@@ -80,8 +78,12 @@ const Market = () => {
                         functionName: "getCurrentPrice",
                     });
 
+                    const endTime = await client.readContract({
+                        address: collection as `0x${string}`,
+                        abi: contractsData["NFTCollection"].abi,
+                        functionName: "getEndTime",
+                    });
 
-// 添加类型断言或守卫
                     if (typeof tokenURI === "string") {
                         const response = await fetch(tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
                         const metadata = await response.json();
@@ -94,6 +96,7 @@ const Market = () => {
                             name: metadata.name,
                             description: metadata.description,
                             price: price ? Number(price) / 1e18 : undefined,
+                            endTime: Number(endTime), // Add auction end time
                         });
                     } else {
                         console.error("Invalid tokenURI type:", tokenURI);
@@ -110,13 +113,13 @@ const Market = () => {
 
     const handleBid = async () => {
         if (!selectedNFT || !bidAmount) {
-            alert("Please select an NFT and enter a valid bid amount!");
+            alert("Please select an NFT and enter a valid bid amount.");
             return;
         }
 
-        const bidValue = parseFloat(bidAmount); // Convert bid amount to a float
+        const bidValue = parseFloat(bidAmount); // Convert input to number
         if (isNaN(bidValue) || bidValue <= 0) {
-            alert("Please enter a valid bid amount!");
+            alert("Please enter a valid bid amount.");
             return;
         }
 
@@ -126,17 +129,14 @@ const Market = () => {
                 address: selectedNFT.collection as `0x${string}`,
                 abi: contractsData["NFTCollection"].abi,
                 functionName: "bid",
-                args: [], // No additional parameters needed for bid
-                value: BigInt(Math.floor(bidValue * 1e18)), // Convert bid to Wei
+                args: [], // No additional arguments needed
+                value: BigInt(Math.floor(bidValue * 1e18)), // Convert to Wei
             });
             console.log("Bid placed successfully:", result);
-            console.log("Bid Amount:", bidAmount);
-            console.log("Bid Value (in ETH):", bidValue);
-            console.log("Bid Value (in wei):", Math.floor(bidValue * 1e18));
-            alert("Bid placed successfully!");
+            alert("Send Request to Wallet");
         } catch (error) {
             console.error("Error placing bid:", error);
-            alert("Bid failed. Please try again!");
+            alert("Failed to place bid. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -166,11 +166,11 @@ const Market = () => {
                     onClick={fetchMarketNFTs}
                     disabled={isLoading || collections.length === 0}
                 >
-                    {isLoading ? "Loading Market NFTs..." : "Fetch Market NFTs"}
+                    {isLoading ? "Loading Market NFTs..." : "Refresh"}
                 </button>
             </div>
             {marketNFTs.length === 0 ? (
-                <p>No NFTs are listed in the market.</p>
+                <p>No NFTs listed in the market.</p>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {marketNFTs.map((nft, index) => (
@@ -179,11 +179,16 @@ const Market = () => {
                             className={`border p-4 rounded shadow ${
                                 selectedNFT?.collection === nft.collection ? "border-blue-500" : ""
                             }`}
-                            onClick={() => setSelectedNFT({ collection: nft.collection, tokenId: nft.tokenId })}
+                            onClick={() => setSelectedNFT({ collection: nft.collection, tokenId: nft.tokenId, price: nft.price || 0 })}
                         >
                             <p className="text-sm font-bold">Collection: {nft.collection}</p>
                             <p className="text-sm">Token ID: {nft.tokenId}</p>
                             {nft.price && <p className="text-sm text-green-600">Current Price: {nft.price} ETH</p>}
+                            {nft.endTime && (
+                                <p className="text-sm text-red-500">
+                                    Ends In: {Math.max(0, Math.floor((nft.endTime * 1000 - Date.now()) / 1000))} seconds
+                                </p>
+                            )}
                             {nft.image && <img src={nft.image} alt={nft.name} className="w-full h-auto" />}
                             {nft.name && <p className="text-sm font-bold">{nft.name}</p>}
                             {nft.description && <p className="text-sm">{nft.description}</p>}
@@ -194,8 +199,9 @@ const Market = () => {
             {selectedNFT && (
                 <div className="mt-8">
                     <h2 className="text-xl font-bold mb-4">Selected NFT</h2>
-                    <p>Collection Address: {selectedNFT.collection}</p>
+                    <p>Collection: {selectedNFT.collection}</p>
                     <p>Token ID: {selectedNFT.tokenId}</p>
+                    <p>Current Price: {selectedNFT.price} ETH</p>
                     <input
                         type="number"
                         placeholder="Enter bid amount (ETH)"
@@ -206,9 +212,9 @@ const Market = () => {
                     <button
                         className="btn btn-success"
                         onClick={handleBid}
-                        disabled={isLoading}
+                        disabled={isLoading || parseFloat(bidAmount) <= (selectedNFT?.price || 0)}
                     >
-                        {isLoading ? "Bidding..." : "Place Bid"}
+                        {isLoading ? "Placing Bid..." : "Place Bid"}
                     </button>
                 </div>
             )}
