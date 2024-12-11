@@ -80,18 +80,37 @@ const Market = () => {
                         functionName: "getCurrentPrice",
                     });
 
-                    const response = await fetch(tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
-                    const metadata = await response.json();
 
-                    nftsTemp.push({
-                        collection,
-                        tokenId: "0",
-                        tokenURI,
-                        image: metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/"),
-                        name: metadata.name,
-                        description: metadata.description,
-                        price: price ? Number(price) / 1e18 : undefined,
-                    });
+// 添加类型断言或守卫
+                    if (typeof tokenURI === "string") {
+                        const response = await fetch(tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
+                        const metadata = await response.json();
+
+                        nftsTemp.push({
+                            collection,
+                            tokenId: "0",
+                            tokenURI,
+                            image: metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/"),
+                            name: metadata.name,
+                            description: metadata.description,
+                            price: price ? Number(price) / 1e18 : undefined,
+                        });
+                    } else {
+                        console.error("Invalid tokenURI type:", tokenURI);
+                    }
+
+                    // const response = await fetch(tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/"));
+                    // const metadata = await response.json();
+                    //
+                    // nftsTemp.push({
+                    //     collection,
+                    //     tokenId: "0",
+                    //     tokenURI:"0",
+                    //     image: metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/"),
+                    //     name: metadata.name,
+                    //     description: metadata.description,
+                    //     price: price ? Number(price) / 1e18 : undefined,
+                    // });
                 }
             } catch (error) {
                 console.error(`Error fetching market NFTs from collection ${collection}:`, error);
