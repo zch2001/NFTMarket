@@ -1,4 +1,5 @@
 # Compiler files
+node_modules/
 cache/
 out/
 

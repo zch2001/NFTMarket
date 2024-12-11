@@ -1,0 +1,15 @@
+{
+  "name": "SS",
+  "description": "SS",
+  "image": "ipfs://bafybeidwcm3poezeu6kxaxc7dbbcwprdakswxaq2xkfvikwyjh3umavlmm",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Blue"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Normal"
+    }
+  ]
+}
