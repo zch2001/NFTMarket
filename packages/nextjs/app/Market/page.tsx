@@ -29,7 +29,7 @@ const Market = () => {
 
     const client = createPublicClient({
         chain: vMainnet,
-        transport: http("https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671"),
+        transport: http("https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"),
     });
 
     // Fetch all NFT collections listed on the market

@@ -18,10 +18,9 @@ const ViewNFTs = () => {
     const contractsData = useAllContracts();
     const { writeContract } = useWriteContract();
 
-    // 设置 viem 的 HTTP 传输层
     const client = createPublicClient({
         chain: vMainnet,
-        transport: http("https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671"),
+        transport: http("https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"),
     });
 
     const fetchNFTs = async () => {
@@ -51,7 +50,7 @@ const ViewNFTs = () => {
                             },
                         ],
                         functionName: "ownerOf",
-                        args: [BigInt(0)], // 每个合约只有一个 NFT，TokenID 固定为 0
+                        args: [BigInt(0)],
                     });
 
                     if (owner.toLowerCase() === walletAddress.toLowerCase()) {
@@ -90,7 +89,7 @@ const ViewNFTs = () => {
 
                         ownedNFTs.push({
                             collection,
-                            tokenId: "0", // 固定为 0
+                            tokenId: "0",
                             tokenURI: tokenURI as string,
                             image: metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/"),
                             name: metadata.name,
@@ -226,6 +225,7 @@ const ViewNFTs = () => {
                         className="input input-bordered mb-4"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
+                        disabled={nfts.find(nft => nft.collection === selectedNFT.collection)?.isListed}
                     />
                     <input
                         type="number"
@@ -233,11 +233,12 @@ const ViewNFTs = () => {
                         className="input input-bordered mb-4"
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
+                        disabled={nfts.find(nft => nft.collection === selectedNFT.collection)?.isListed}
                     />
                     <button
                         className="btn btn-success mr-4"
                         onClick={handleListNFT}
-                        disabled={isLoading}
+                        disabled={isLoading || nfts.find(nft => nft.collection === selectedNFT.collection)?.isListed}
                     >
                         {isLoading ? "Listing..." : "List NFT"}
                     </button>

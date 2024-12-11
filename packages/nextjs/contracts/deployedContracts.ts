@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   1: {
     NFTCollectionFactory: {
-      address: "0xcffc964b7c728df706a05500715f41c210c9f832",
+      address: "0x05d8a8ba235318c9e5033f7b35376f9b8a026f80",
       abi: [
         {
           type: "constructor",
@@ -78,7 +78,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     NFTCollection: {
-      address: "0x23088830cfAa0A11c00f22834d2a319e91a6ccb3",
+      address: "0x395f012bb16eed7d89d80d2eef9c9f5eacdaf2f6",
       abi: [
         {
           type: "constructor",

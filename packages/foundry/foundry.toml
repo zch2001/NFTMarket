@@ -8,7 +8,7 @@ fs_permissions = [{ access = "read-write", path = "./"}]
 default_network = "http://127.0.0.1:8545"
 localhost = "http://127.0.0.1:8545"
 
-tenderly = "https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671"
+tenderly = "https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"
 mainnet = "https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}"
 sepolia = "https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
 arbitrum = "https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
@@ -42,7 +42,7 @@ bracket_spacing = true
 int_types = "long"
 
 [networks]
-tenderly = { chain_id = 1, rpc_url = "https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671" }
+tenderly = { chain_id = 1, rpc_url = "https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b" }
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

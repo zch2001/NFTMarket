@@ -6,12 +6,12 @@ export const vMainnet = defineChain({
     name: 'Virtual Ethereum Mainnet',
     nativeCurrency: { name: 'vEther', symbol: 'vETH', decimals: 18 },
     rpcUrls: {
-        default: { http: ["https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671"] },
+        default: { http: ["https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"] },
     },
     blockExplorers: {
         default: {
             name: 'Tenderly Explorer',
-            url: "https://virtual.mainnet.rpc.tenderly.co/968eb75a-be5c-456f-aab8-44b5ba44a671"
+            url: "https://virtual.mainnet.rpc.tenderly.co/bb8f15de-7875-43f9-aa03-ab1c1772da1b"
         },
     },
     contracts: {
