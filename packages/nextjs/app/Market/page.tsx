@@ -20,7 +20,7 @@ const Market = () => {
             endTime?: number; // Auction end time (timestamp)
         }[]
     >([]);
-    const [selectedNFT, setSelectedNFT] = useState<null | { collection: string; tokenId: string; price: number }>(null);
+    const [selectedNFT, setSelectedNFT] = useState<null | { collection: string; tokenId: string; price: number; endTime?: number }>(null);
     const [bidAmount, setBidAmount] = useState<string>(""); // User bid amount
     const [isLoading, setIsLoading] = useState(false);
     const contractsData = useAllContracts();
@@ -133,7 +133,7 @@ const Market = () => {
                 value: BigInt(Math.floor(bidValue * 1e18)), // Convert to Wei
             });
             console.log("Bid placed successfully:", result);
-            alert("Send Request to Wallet");
+            alert("Bid placed successfully!");
         } catch (error) {
             console.error("Error placing bid:", error);
             alert("Failed to place bid. Please try again.");
@@ -166,7 +166,7 @@ const Market = () => {
                     onClick={fetchMarketNFTs}
                     disabled={isLoading || collections.length === 0}
                 >
-                    {isLoading ? "Loading Market NFTs..." : "Refresh"}
+                    {isLoading ? "Loading Market NFTs..." : "Fetch Market NFTs"}
                 </button>
             </div>
             {marketNFTs.length === 0 ? (
@@ -179,7 +179,7 @@ const Market = () => {
                             className={`border p-4 rounded shadow ${
                                 selectedNFT?.collection === nft.collection ? "border-blue-500" : ""
                             }`}
-                            onClick={() => setSelectedNFT({ collection: nft.collection, tokenId: nft.tokenId, price: nft.price || 0 })}
+                            onClick={() => setSelectedNFT({ collection: nft.collection, tokenId: nft.tokenId, price: nft.price || 0, endTime: nft.endTime })}
                         >
                             <p className="text-sm font-bold">Collection: {nft.collection}</p>
                             <p className="text-sm">Token ID: {nft.tokenId}</p>
@@ -202,6 +202,13 @@ const Market = () => {
                     <p>Collection: {selectedNFT.collection}</p>
                     <p>Token ID: {selectedNFT.tokenId}</p>
                     <p>Current Price: {selectedNFT.price} ETH</p>
+                    <p>
+                        Ends In:{" "}
+                        {selectedNFT.endTime
+                            ? Math.max(0, Math.floor((selectedNFT.endTime * 1000 - Date.now()) / 1000))
+                            : "Unknown"}{" "}
+                        seconds
+                    </p>
                     <input
                         type="number"
                         placeholder="Enter bid amount (ETH)"
@@ -212,7 +219,13 @@ const Market = () => {
                     <button
                         className="btn btn-success"
                         onClick={handleBid}
-                        disabled={isLoading || parseFloat(bidAmount) <= (selectedNFT?.price || 0)}
+                        disabled={
+                            Boolean(
+                                isLoading ||
+                                parseFloat(bidAmount) <= (selectedNFT?.price || 0) ||
+                                (selectedNFT.endTime && Date.now() >= selectedNFT.endTime * 1000)
+                            )
+                        }
                     >
                         {isLoading ? "Placing Bid..." : "Place Bid"}
                     </button>
