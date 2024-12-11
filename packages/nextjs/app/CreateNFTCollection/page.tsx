@@ -28,6 +28,7 @@ const CreateNFTCollection = () => {
             // 上传图片到 IPFS
             const formData = new FormData();
             formData.append("file", imageFile);
+            console.log("JWT Token:", process.env.NEXT_PUBLIC_PINATA_JWT);
 
             const pinataResponse = await axios.post(
                 "https://api.pinata.cloud/pinning/pinFileToIPFS",
