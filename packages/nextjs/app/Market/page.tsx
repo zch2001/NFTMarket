@@ -166,7 +166,7 @@ const Market = () => {
                     onClick={fetchMarketNFTs}
                     disabled={isLoading || collections.length === 0}
                 >
-                    {isLoading ? "Loading Market NFTs..." : "Fetch Market NFTs"}
+                    {isLoading ? "Loading Market NFTs..." : "Refresh"}
                 </button>
             </div>
             {marketNFTs.length === 0 ? (
